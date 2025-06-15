@@ -3,9 +3,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY . /app
+COPY requirements.txt /app/
 
-RUN if [ -f requirements.txt ]; then \
-        pip install --no-cache-dir -r requirements.txt; \
-    fi
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT ["python", "crawler.py"]
+ENTRYPOINT ["python", "-m", "crawler.main"]

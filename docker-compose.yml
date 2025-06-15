@@ -4,4 +4,4 @@ services:
     build: .
     volumes:
       - .:/app
-    entrypoint: ["python", "crawler.py"]
+    entrypoint: ["python", "-m", "crawler.main"]
