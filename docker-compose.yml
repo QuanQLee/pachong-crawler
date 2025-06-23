@@ -5,3 +5,11 @@ services:
     volumes:
       - .:/app
     entrypoint: ["python", "-m", "crawler.main"]
+
+  frontend:
+    build: .
+    volumes:
+      - .:/app
+    entrypoint: ["python", "frontend/app.py"]
+    ports:
+      - "8000:8000"
