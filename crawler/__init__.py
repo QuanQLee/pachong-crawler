@@ -14,6 +14,7 @@ __all__ = [
     "ObjectStore",
     "AsyncCrawler",
     "SQLiteStore",
+    "LiveWebSocket",
 ]
 
 def __getattr__(name):
@@ -36,6 +37,8 @@ def __getattr__(name):
         from .async_crawler import AsyncCrawler as attr
     elif name == "SQLiteStore":
         from .async_crawler import SQLiteStore as attr
+    elif name == "LiveWebSocket":
+        from .live_ws import LiveWebSocket as attr
     else:
         raise AttributeError(name)
     globals()[name] = attr
