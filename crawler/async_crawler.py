@@ -112,7 +112,7 @@ class AsyncCrawler:
         self._fetcher = AsyncFetcher(delay=delay)
         self._plugins = list(plugins or [])
 
-    async def crawl(self) -> None:
+    async def crawl(self, *, continuous: bool = False) -> None:
         visited = self._store.visited()
         for s in self._seeds:
             if s not in visited:
@@ -122,6 +122,9 @@ class AsyncCrawler:
             while True:
                 url = self._store.dequeue()
                 if not url:
+                    if continuous:
+                        await asyncio.sleep(1)
+                        continue
                     break
                 if url in visited:
                     continue

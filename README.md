@@ -57,24 +57,13 @@ python frontend/app.py
 docker build -t pachong-crawler .
 ```
 
-镜像默认会执行 `python -m crawler.main`，脚本仅打印参数后即退出。如果想在容器中运行 Web 前端，可使用：
+镜像默认会执行 `python -m crawler.main`。要在容器中运行持续爬取并通过 Web 界面提交 URL，可使用 `docker-compose`：
 
 ```bash
-docker run -p 8000:8000 pachong-crawler python frontend/app.py
+docker-compose up
 ```
 
-若要保存抓取结果到宿主机目录，可挂载卷并指定 `--output-dir`：
-
-```bash
-docker run -v $(pwd)/out:/data pachong-crawler \
-  python -m crawler.main --seed https://example.com --output-dir /data
-```
-
-若使用 `docker-compose`，可启动 `frontend` 服务：
-
-```bash
-docker-compose up frontend
-```
+启动后访问 <http://localhost:8000> 填写要爬取的地址，并通过 `ws://localhost:8765` 实时接收发现的链接。
 
 ## 高级异步爬虫
 
@@ -87,6 +76,16 @@ docker-compose up frontend
 ```bash
 python -m crawler.async_crawler
 ```
+
+## Live WebSocket
+
+借助 `LiveWebSocket` 模块，可以在爬虫运行时实时推送发现的链接。
+
+```bash
+python -m crawler.run_with_ws
+```
+
+启动后连接 `ws://localhost:8765` 即可接收链接消息。
 
 ## 运行测试
 
