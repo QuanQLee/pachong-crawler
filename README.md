@@ -76,6 +76,18 @@ docker run -v $(pwd)/out:/data pachong-crawler \
 docker-compose up frontend
 ```
 
+## 高级异步爬虫
+
+项目额外提供了一个 `AsyncCrawler` 类，能够使用 `aiohttp` 异步抓取静态页面，并在需要
+时自动切换到 Playwright 进行 JS 渲染。所有抓取结果会保存到 SQLite 数据库中，队列也
+会持久化，因而支持断点续抓。
+
+示例：
+
+```bash
+python -m crawler.async_crawler
+```
+
 ## 运行测试
 
 项目包含一些基本测试，可使用 `pytest` 运行：

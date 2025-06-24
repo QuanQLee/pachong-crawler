@@ -12,6 +12,8 @@ __all__ = [
     "normalize_entry",
     "Database",
     "ObjectStore",
+    "AsyncCrawler",
+    "SQLiteStore",
 ]
 
 def __getattr__(name):
@@ -30,6 +32,10 @@ def __getattr__(name):
         from .storage import Database as attr
     elif name == "ObjectStore":
         from .storage import ObjectStore as attr
+    elif name == "AsyncCrawler":
+        from .async_crawler import AsyncCrawler as attr
+    elif name == "SQLiteStore":
+        from .async_crawler import SQLiteStore as attr
     else:
         raise AttributeError(name)
     globals()[name] = attr
