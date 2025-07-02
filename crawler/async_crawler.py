@@ -1,6 +1,7 @@
 import asyncio
 import time
 import sqlite3
+import threading
 from typing import Iterable, Callable, Awaitable, Set
 from urllib.parse import urljoin
 
@@ -13,7 +14,9 @@ class SQLiteStore:
     """Simple SQLite-based storage for crawled pages and queue."""
 
     def __init__(self, path: str = "crawl.db") -> None:
-        self.conn = sqlite3.connect(path)
+        # Allow the connection to be shared across threads
+        self.conn = sqlite3.connect(path, check_same_thread=False)
+        self._lock = threading.Lock()
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS pages (url TEXT PRIMARY KEY, html TEXT)"
         )
@@ -23,27 +26,32 @@ class SQLiteStore:
         self.conn.commit()
 
     def visited(self) -> Set[str]:
-        cur = self.conn.execute("SELECT url FROM pages")
-        return {row[0] for row in cur.fetchall()}
+        with self._lock:
+            cur = self.conn.execute("SELECT url FROM pages")
+            return {row[0] for row in cur.fetchall()}
 
     def enqueue(self, url: str) -> None:
-        self.conn.execute("INSERT OR IGNORE INTO queue(url) VALUES (?)", (url,))
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute("INSERT OR IGNORE INTO queue(url) VALUES (?)", (url,))
+            self.conn.commit()
 
     def dequeue(self) -> str | None:
-        cur = self.conn.execute("SELECT url FROM queue LIMIT 1")
-        row = cur.fetchone()
-        if row:
-            self.conn.execute("DELETE FROM queue WHERE url=?", (row[0],))
-            self.conn.commit()
-            return row[0]
-        return None
+        with self._lock:
+            cur = self.conn.execute("SELECT url FROM queue LIMIT 1")
+            row = cur.fetchone()
+            if row:
+                self.conn.execute("DELETE FROM queue WHERE url=?", (row[0],))
+                self.conn.commit()
+                return row[0]
+            return None
 
     def save(self, url: str, html: str) -> None:
-        self.conn.execute(
-            "INSERT OR REPLACE INTO pages(url, html) VALUES (?, ?)", (url, html)
-        )
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute(
+                "INSERT OR REPLACE INTO pages(url, html) VALUES (?, ?)",
+                (url, html),
+            )
+            self.conn.commit()
 
 
 class AsyncFetcher:
