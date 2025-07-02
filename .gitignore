@@ -43,3 +43,6 @@ data/
 
 # Database
 crawl.db
+
+# Visual Studio ±¾µØ»º´æ & Ë÷Òý
+.vs/
