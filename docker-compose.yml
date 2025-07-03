@@ -6,5 +6,5 @@ services:
       - .:/app
     entrypoint: ["python", "frontend/app.py"]
     ports:
-      - "8010:8010"
+      - "8010:8000"
       - "8765:8765"
