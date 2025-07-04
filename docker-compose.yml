@@ -2,7 +2,6 @@ version: '3'
 services:
   app:
     build: .
-    network_mode: host
     volumes:
       - .:/app
     entrypoint: ["python", "frontend/app.py"]
