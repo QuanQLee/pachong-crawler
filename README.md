@@ -63,6 +63,8 @@ docker build -t pachong-crawler .
 docker-compose up
 ```
 
+如果容器无法访问外网，可在 `docker-compose.yml` 中使用 `network_mode: host` （本仓库已如此配置）以共享宿主机的网络。
+
 启动后访问 <http://localhost:8000> 填写要爬取的地址，并通过 `ws://localhost:8765` 实时接收发现的链接。
 
 ## 高级异步爬虫
