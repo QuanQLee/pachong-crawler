@@ -63,7 +63,10 @@ docker build -t pachong-crawler .
 docker-compose up
 ```
 
-启动后访问 <http://localhost:8000> 填写要爬取的地址，并通过 `ws://localhost:8765` 实时接收发现的链接。
+使用 `docker-compose` 时，服务容器内部仍监听 8000 端口，但会映射到宿主机的 8010 端口。
+因此应在浏览器中访问 <http://localhost:8010> 填写要爬取的地址，并通过 `ws://localhost:8765` 实时接收发现的链接。
+
+前端提交的 URL 会被持续爬取，抓取到的页面内容会以 HTML 文件形式保存在仓库根目录下的 `data/` 目录，方便在宿主机上查看。
 
 ## 高级异步爬虫
 
