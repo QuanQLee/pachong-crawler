@@ -2,19 +2,28 @@ from flask import Flask, render_template_string, request, jsonify
 import asyncio
 import threading
 
-from crawler import AsyncCrawler, SQLiteStore, discover_urls
+from pathlib import Path
+
+from crawler import AsyncCrawler, SQLiteStore, ObjectStore, discover_urls
 from crawler.live_ws import LiveWebSocket
 
 app = Flask(__name__)
 
 store = SQLiteStore("crawl.db")
+file_store = ObjectStore(Path("data"))
 ws = LiveWebSocket()
 
 async def ws_plugin(url: str, html: str) -> None:
     for link in discover_urls(html, url):
         await ws.broadcast(link)
 
-crawler = AsyncCrawler([], store, plugins=[ws_plugin])
+async def save_plugin(url: str, html: str) -> None:
+    """Persist crawled pages to the ``data`` directory."""
+    from hashlib import md5
+    name = md5(url.encode("utf-8")).hexdigest() + ".html"
+    file_store.put(name, html.encode("utf-8"))
+
+crawler = AsyncCrawler([], store, plugins=[ws_plugin, save_plugin])
 loop = asyncio.new_event_loop()
 
 
