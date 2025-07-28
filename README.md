@@ -47,6 +47,8 @@ python frontend/app.py
 
 启动后访问 <http://localhost:8000> 即可使用。
 
+页面下方还提供按钮，可直接抓取示例电商及社交平台数据，点击后将在浏览器中显示结果。
+
 ## Docker 方式
 
 也可以通过 Docker 或 docker-compose 运行。
@@ -97,4 +99,25 @@ python -m crawler.run_with_ws
 ```bash
 PYTHONPATH=. pytest -q
 ```
+
+## 平台数据抓取
+
+`crawler/platform_runner.py` 和前端界面都演示了如何抓取示例电商和社交平台的数据：
+
+```bash
+python -m crawler.platform_runner
+```
+
+脚本将输出从 `fakestoreapi.com` 取得的商品信息以及来自 `jsonplaceholder.typicode.com`
+的热门贴文列表，可作为扩展到真实平台的参考。
+
+## CI/CD
+
+项目内置 GitHub Actions 工作流 `.github/workflows/ci.yml`，在推送或提交 PR 时会：
+
+1. 安装依赖并执行测试。
+2. 构建 Docker 镜像并（在配置了 `REGISTRY_USERNAME` 与 `REGISTRY_PASSWORD`
+   secrets 的情况下）推送到 `ghcr.io`。
+
+推送完成后即可在本地通过 `docker pull ghcr.io/<owner>/<repo>:latest` 拉取并测试镜像。
 

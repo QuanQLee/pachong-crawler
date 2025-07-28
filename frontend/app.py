@@ -1,4 +1,7 @@
 from flask import Flask, render_template_string, request, jsonify
+
+from crawler.platforms.ecommerce import FakeStorePlatform
+from crawler.platforms.social import FakeSocialPlatform
 import asyncio
 import threading
 
@@ -44,6 +47,11 @@ HTML_TEMPLATE = """
   <input type=submit value="Enqueue">
 </form>
 <ul id="results"></ul>
+<hr>
+<h2>Platform Data</h2>
+<button id="btn-ecommerce">Fetch E-commerce</button>
+<button id="btn-social">Fetch Social</button>
+<ul id="platform-results"></ul>
 <script>
 const ws = new WebSocket("ws://" + location.hostname + ":8765");
 ws.onmessage = ev => {
@@ -62,6 +70,21 @@ document.getElementById('form').onsubmit = async ev => {
   });
   document.getElementById('url').value = '';
 };
+
+async function fetchPlatform(name) {
+  const resp = await fetch('/platform/' + name);
+  const items = await resp.json();
+  const ul = document.getElementById('platform-results');
+  ul.innerHTML = '';
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = JSON.stringify(item);
+    ul.appendChild(li);
+  });
+}
+
+document.getElementById('btn-ecommerce').onclick = () => fetchPlatform('ecommerce');
+document.getElementById('btn-social').onclick = () => fetchPlatform('social');
 </script>
 """
 
@@ -79,6 +102,18 @@ def enqueue():
         return jsonify({'error': 'missing url'}), 400
     store.enqueue(url)
     return jsonify({'status': 'enqueued', 'url': url})
+
+
+@app.route('/platform/<name>')
+def platform_data(name: str):
+    if name == 'ecommerce':
+        platform = FakeStorePlatform()
+    elif name == 'social':
+        platform = FakeSocialPlatform()
+    else:
+        return jsonify({'error': 'unknown platform'}), 400
+    items = list(platform.fetch_items())
+    return jsonify(items)
 
 
 if __name__ == '__main__':
